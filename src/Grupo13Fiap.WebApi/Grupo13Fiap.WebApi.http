@@ -1,0 +1,6 @@
+@Grupo13Fiap.WebApi_HostAddress = http://localhost:5062
+
+GET {{Grupo13Fiap.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

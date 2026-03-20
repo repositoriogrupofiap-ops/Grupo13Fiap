@@ -1,0 +1,6 @@
+@GrupoFiap13_HostAddress = http://localhost:5102
+
+GET {{GrupoFiap13_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
