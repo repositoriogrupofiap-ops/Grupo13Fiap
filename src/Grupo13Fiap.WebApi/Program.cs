@@ -24,7 +24,6 @@ app.MapGet("/weatherforecast", () =>
 
     string text = "0";
 
-
     var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (

@@ -16,9 +16,4 @@
     <ProjectReference Include="..\..\Grupo13Fiap.Utils\Grupo13Fiap.Utils.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-    <Folder Include="NovaPasta\" />
-  </ItemGroup>
-
 </Project>
