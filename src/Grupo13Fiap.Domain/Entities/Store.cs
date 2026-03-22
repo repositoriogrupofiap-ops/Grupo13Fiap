@@ -1,6 +1,6 @@
 ﻿namespace Grupo13Fiap.Domain.Entities;
 
-internal class Store
+public class Store : EntityBase
 {
-    IEnumerable<Games> Games { get; set; } = [];
+    public ICollection<Game> Games { get; set; } = [];
 }

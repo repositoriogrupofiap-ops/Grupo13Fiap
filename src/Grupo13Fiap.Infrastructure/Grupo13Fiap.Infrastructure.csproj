@@ -2,8 +2,16 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Grupo13Fiap.Domain\Grupo13Fiap.Domain.csproj" />
-    <ProjectReference Include="..\Grupo13Fiap.Application\Grupo13Fiap.Application.csproj" />
     <ProjectReference Include="..\..\Grupo13Fiap.Utils\Grupo13Fiap.Utils.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.5">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
   </ItemGroup>
 
   <PropertyGroup>
