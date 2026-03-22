@@ -1,6 +1,9 @@
 ﻿namespace Grupo13Fiap.Domain.Entities;
 
-internal class Users
+public class Users : EntityBase
 {
-    Library Library { get; set; } = new Library();
+    public Guid? LibraryId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public Library? Library { get; set; }
 }
+
