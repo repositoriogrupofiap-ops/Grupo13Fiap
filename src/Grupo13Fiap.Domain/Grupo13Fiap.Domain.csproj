@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Grupo13Fiap.Utils\Grupo13Fiap.Utils.csproj" />
+    <ProjectReference Include="..\Grupo13Fiap.Utils\Grupo13Fiap.Utils.csproj" />
   </ItemGroup>
 
 </Project>

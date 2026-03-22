@@ -1,7 +1,9 @@
 using Grupo13Fiap.Domain.Enum;
 using Grupo13Fiap.Domain.Interfaces;
+using Grupo13Fiap.Infrastructure.Context;
 using Grupo13Fiap.Infrastructure.Extensions;
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,38 +15,44 @@ public class InfrastructureTests : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        var dbName        = $"TestDb_{Guid.NewGuid()}";
         var services      = new ServiceCollection();
         var configuration = new ConfigurationBuilder().Build();
 
-        services.AddInfrastructure(configuration);
+        services.AddInfrastructure(configuration, options =>
+            options.UseInMemoryDatabase(dbName));
 
         _provider = services.BuildServiceProvider();
 
         await _provider.InitializeDatabaseAsync();
+
+        using var scope = _provider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<DBContextGrupo13Fiap>();
+        await TestSeeder.SeedAsync(db);
     }
 
     public async Task DisposeAsync() => await _provider.DisposeAsync();
 
     [Fact]
-    public async Task Seed_DevePopularBancoComSeiJogos()
+    public async Task Seed_DevePopularBancoComJogosCorretos()
     {
         using var scope = _provider.CreateScope();
         var repo = scope.ServiceProvider.GetRequiredService<IGameRepository>();
 
         var games = await repo.GetAllAsync();
 
-        Assert.Equal(6, games.Count());
+        Assert.Equal(TestSeeder.TotalGames, games.Count());
     }
 
     [Fact]
-    public async Task Seed_DevePopularBancoComDoisUsuarios()
+    public async Task Seed_DevePopularBancoComUsuariosCorretos()
     {
         using var scope = _provider.CreateScope();
         var repo = scope.ServiceProvider.GetRequiredService<IUsersRepository>();
 
         var users = await repo.GetAllAsync();
 
-        Assert.Equal(2, users.Count());
+        Assert.Equal(TestSeeder.TotalUsers, users.Count());
     }
 
     [Fact]
@@ -53,10 +61,10 @@ public class InfrastructureTests : IAsyncLifetime
         using var scope = _provider.CreateScope();
         var repo = scope.ServiceProvider.GetRequiredService<IUsersRepository>();
 
-        var user = await repo.GetByNameAsync("João Silva");
+        var user = await repo.GetByNameAsync(TestSeeder.User1Name);
 
         Assert.NotNull(user);
-        Assert.Equal("João Silva", user.Name);
+        Assert.Equal(TestSeeder.User1Name, user.Name);
     }
 
     [Fact]
@@ -70,7 +78,7 @@ public class InfrastructureTests : IAsyncLifetime
 
         Assert.NotNull(userWithLibrary);
         Assert.NotNull(userWithLibrary.Library);
-        Assert.NotEmpty(userWithLibrary.Library.Games);
+        Assert.Equal(TestSeeder.GamesUser1, userWithLibrary.Library.Games.Count);
     }
 
     [Fact]
@@ -95,6 +103,7 @@ public class InfrastructureTests : IAsyncLifetime
         var storeWithGames = await repo.GetWithGamesAsync(stores.First().Id);
 
         Assert.NotNull(storeWithGames);
-        Assert.Equal(6, storeWithGames.Games.Count);
+        Assert.Equal(TestSeeder.StoreGames, storeWithGames.Games.Count);
     }
 }
+

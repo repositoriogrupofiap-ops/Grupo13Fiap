@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Grupo13Fiap.Infrastructure.Repositories;
 
-public class GameRespository(DBContextGrupo13Fiap context) : GenericRepository<Game>(context), IGameRepository
+public class GameRepository(DBContextGrupo13Fiap context) : GenericRepository<Game>(context), IGameRepository
 {
     public async Task<IEnumerable<Game>> GetByNameAsync(string name, CancellationToken cancellationToken = default)
         => await Query()

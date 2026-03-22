@@ -2,7 +2,6 @@ using Grupo13Fiap.Domain.Interfaces;
 using Grupo13Fiap.Infrastructure.Context;
 using Grupo13Fiap.Infrastructure.Data;
 using Grupo13Fiap.Infrastructure.Repositories;
-using Grupo13Fiap.Utils.Extensions;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,9 +11,9 @@ namespace Grupo13Fiap.Infrastructure.Extensions;
 
 public static class InfrastructureExtensions
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, Action<DbContextOptionsBuilder>? configureDb = null)
     {
-        services.AddDbContext(configuration);
+        services.AddDbContext(configuration, configureDb);
         services.AddRepositories();
 
         return services;
@@ -27,17 +26,30 @@ public static class InfrastructureExtensions
 
         await db.Database.EnsureCreatedAsync();   // InMemory  — usar EnsureCreatedAsync
         // await db.Database.MigrateAsync();       // SQL Server — trocar para MigrateAsync
+    }
+
+    public static async Task SeedDatabaseAsync(this IServiceProvider provider)
+    {
+        using var scope = provider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<DBContextGrupo13Fiap>();
 
         await DataSeeder.SeedAsync(db);
     }
 
-    private static IServiceCollection AddDbContext(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddDbContext(this IServiceCollection services, IConfiguration configuration, Action<DbContextOptionsBuilder>? configureDb = null)
     {
-        // Método 1 — InMemory (ativo para testes locais)
+        if (configureDb is not null)
+        {
+            services.AddDbContext<DBContextGrupo13Fiap>(configureDb);
+            return services;
+        }
+
+        //coloquei em memoria pra não termos problemas com a conn de inicio, qualquer coisa só descomentar o codigo a baixo e comentar este.
+        //é preciso ajustar o metodo a cima InitializeDatabaseAsync para usar migrate ao invés de ensurecreated
         services.AddDbContext<DBContextGrupo13Fiap>(options =>
             options.UseInMemoryDatabase("Grupo13FiapDb"));
 
-        // Método 2 — SQL Server via variável de ambiente (descomentar para produção)
+
         // services.AddDbContext<DBContextGrupo13Fiap>(options =>
         //     options.UseSqlServer(configuration.GetConnectionStringDataBase()));
 
@@ -46,10 +58,10 @@ public static class InfrastructureExtensions
 
     private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddScoped<IUsersRepository,   UsersRepository>();
+        services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<ILibraryRepository, LibraryRepository>();
-        services.AddScoped<IStoreRepository,   StoreRepository>();
-        services.AddScoped<IGameRepository,    GameRespository>();
+        services.AddScoped<IStoreRepository, StoreRepository>();
+        services.AddScoped<IGameRepository, GameRepository>();
 
         return services;
     }

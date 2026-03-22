@@ -10,7 +10,7 @@ public static class DataSeeder
 {
     public static async Task SeedAsync(DBContextGrupo13Fiap context)
     {
-        if (await context.Users.AnyAsync())
+        if(await context.Users.AnyAsync())
             return;
 
         var games = new List<Game>
@@ -28,7 +28,7 @@ public static class DataSeeder
         var library1 = new Library { Games = games.Take(3).ToList() };
         var library2 = new Library { Games = games.Skip(3).ToList() };
 
-        var user1 = new Users { Name = "João Silva",  Library = library1, LibraryId = library1.Id };
+        var user1 = new Users { Name = "João Silva", Library = library1, LibraryId = library1.Id };
         var user2 = new Users { Name = "Maria Souza", Library = library2, LibraryId = library2.Id };
 
         await context.Stores.AddAsync(store);

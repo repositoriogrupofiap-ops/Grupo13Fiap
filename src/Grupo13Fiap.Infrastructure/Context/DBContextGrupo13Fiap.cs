@@ -19,7 +19,7 @@ public class DBContextGrupo13Fiap(DbContextOptions<DBContextGrupo13Fiap> options
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Nome).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.Description).HasMaxLength(2000);
             entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Category).HasConversion<int>();
         });

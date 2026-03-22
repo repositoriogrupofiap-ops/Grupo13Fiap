@@ -9,9 +9,10 @@ var app = builder.Build();
 
 await app.Services.InitializeDatabaseAsync();
 
-if(app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    await app.Services.SeedDatabaseAsync();
 }
 
 app.UseHttpsRedirection();
