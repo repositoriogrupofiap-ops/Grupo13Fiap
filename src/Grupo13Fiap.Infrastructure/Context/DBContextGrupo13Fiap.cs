@@ -1,0 +1,52 @@
+﻿using Grupo13Fiap.Domain.Entities;
+
+using Microsoft.EntityFrameworkCore;
+
+namespace Grupo13Fiap.Infrastructure.Context;
+
+public class DBContextGrupo13Fiap(DbContextOptions<DBContextGrupo13Fiap> options) : DbContext(options)
+{
+    public DbSet<Game> Games { get; set; }
+    public DbSet<Store> Stores { get; set; }
+    public DbSet<Users> Users { get; set; }
+    public DbSet<Library> Libraries { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Game>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Nome).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(2000);
+            entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Category).HasConversion<int>();
+        });
+
+        modelBuilder.Entity<Store>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasMany(e => e.Games)
+                  .WithMany()
+                  .UsingEntity(j => j.ToTable("StoreGames"));
+        });
+
+        modelBuilder.Entity<Library>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasMany(e => e.Games)
+                  .WithMany()
+                  .UsingEntity(j => j.ToTable("LibraryGames"));
+        });
+
+        modelBuilder.Entity<Users>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.HasOne(e => e.Library)
+                  .WithOne()
+                  .HasForeignKey<Users>(e => e.LibraryId);
+        });
+    }
+}
