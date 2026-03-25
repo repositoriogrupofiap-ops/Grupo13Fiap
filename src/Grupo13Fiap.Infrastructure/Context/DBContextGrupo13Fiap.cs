@@ -8,7 +8,7 @@ public class DBContextGrupo13Fiap(DbContextOptions<DBContextGrupo13Fiap> options
 {
     public DbSet<Game> Games { get; set; }
     public DbSet<Store> Stores { get; set; }
-    public DbSet<Users> Users { get; set; }
+    public DbSet<User> Users { get; set; }
     public DbSet<Library> Libraries { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -40,13 +40,13 @@ public class DBContextGrupo13Fiap(DbContextOptions<DBContextGrupo13Fiap> options
                   .UsingEntity(j => j.ToTable("LibraryGames"));
         });
 
-        modelBuilder.Entity<Users>(entity =>
+        modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
             entity.HasOne(e => e.Library)
                   .WithOne()
-                  .HasForeignKey<Users>(e => e.LibraryId);
+                  .HasForeignKey<User>(e => e.LibraryId);
         });
     }
 }
