@@ -1,9 +1,9 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/Grupo13Fiap.Utils/Grupo13Fiap.Utils.csproj" Id="6814ee89-5120-4868-aee1-5779027f4060" />
     <Project Path="src/Grupo13Fiap.Application/Grupo13Fiap.Application.csproj" />
     <Project Path="src/Grupo13Fiap.Domain/Grupo13Fiap.Domain.csproj" />
     <Project Path="src/Grupo13Fiap.Infrastructure/Grupo13Fiap.Infrastructure.csproj" />
+    <Project Path="src/Grupo13Fiap.Utils/Grupo13Fiap.Utils.csproj" Id="6814ee89-5120-4868-aee1-5779027f4060" />
     <Project Path="src/Grupo13Fiap.WebApi/Grupo13Fiap.WebApi.csproj" />
   </Folder>
   <Folder Name="/tests/">

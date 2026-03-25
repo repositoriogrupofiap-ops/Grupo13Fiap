@@ -13,23 +13,48 @@ public static class DataSeeder
         if(await context.Users.AnyAsync())
             return;
 
-        var games = new List<Game>
+        var game1 = new Game(CategoryGameEnum.RPG, "Elden Ring", "RPG de mundo aberto da FromSoftware.", 249.90m);
+        game1.ScheduleDisponibilization(new DateTime(2022, 2, 25));
+
+        var game2 = new Game(CategoryGameEnum.Action, "God of War Ragnarök", "Aventura épica nórdica com Kratos e Atreus.", 299.90m);
+        game2.ScheduleDisponibilization(new DateTime(2022, 11, 9));
+
+        var game3 = new Game(CategoryGameEnum.Adventure, "Hollow Knight", "Metroidvania indie com vasto mundo subterrâneo.", 49.90m);
+        game3.ScheduleDisponibilization(new DateTime(2017, 2, 24));
+
+        var game4 = new Game(CategoryGameEnum.RPG, "Baldur's Gate 3", "RPG baseado em D&D com sistema de turnos.", 249.90m);
+        game4.ScheduleDisponibilization(new DateTime(2023, 8, 3));
+
+        var game5 = new Game(CategoryGameEnum.Action, "Hades", "Roguelite de ação da Supergiant Games.", 79.90m);
+        game5.ScheduleDisponibilization(new DateTime(2020, 9, 17));
+
+        var game6 = new Game(CategoryGameEnum.Simulation, "Stardew Valley", "Simulador de fazenda com elementos RPG.", 39.90m);
+        game6.ScheduleDisponibilization(new DateTime(2016, 2, 26));
+
+        var games = new List<Game> { game1, game2, game3, game4, game5, game6 };
+
+        var store = new Store();
+        foreach (var game in games)
         {
-            new() { Nome = "Elden Ring",        Category = CategoryGameEnum.RPG,        Price = 249.90m, Description = "RPG de mundo aberto da FromSoftware.",           DisponibilizationDate = new DateTime(2022, 2,  25) },
-            new() { Nome = "God of War Ragnarök",Category = CategoryGameEnum.Action,     Price = 299.90m, Description = "Aventura épica nórdica com Kratos e Atreus.",    DisponibilizationDate = new DateTime(2022, 11,  9) },
-            new() { Nome = "Hollow Knight",      Category = CategoryGameEnum.Adventure,  Price =  49.90m, Description = "Metroidvania indie com vasto mundo subterrâneo.", DisponibilizationDate = new DateTime(2017, 2,  24) },
-            new() { Nome = "Baldur's Gate 3",    Category = CategoryGameEnum.RPG,        Price = 249.90m, Description = "RPG baseado em D&D com sistema de turnos.",       DisponibilizationDate = new DateTime(2023, 8,   3) },
-            new() { Nome = "Hades",              Category = CategoryGameEnum.Action,     Price =  79.90m, Description = "Roguelite de ação da Supergiant Games.",          DisponibilizationDate = new DateTime(2020, 9,  17) },
-            new() { Nome = "Stardew Valley",     Category = CategoryGameEnum.Simulation, Price =  39.90m, Description = "Simulador de fazenda com elementos RPG.",         DisponibilizationDate = new DateTime(2016, 2,  26) },
-        };
+            store.AddGame(game);
+        }
 
-        var store = new Store { Games = [.. games] };
+        var library1 = new Library();
+        foreach (var game in games.Take(3))
+        {
+            library1.AddGame(game);
+        }
 
-        var library1 = new Library { Games = games.Take(3).ToList() };
-        var library2 = new Library { Games = games.Skip(3).ToList() };
+        var library2 = new Library();
+        foreach (var game in games.Skip(3))
+        {
+            library2.AddGame(game);
+        }
 
-        var user1 = new Users { Name = "João Silva", Library = library1, LibraryId = library1.Id };
-        var user2 = new Users { Name = "Maria Souza", Library = library2, LibraryId = library2.Id };
+        var user1 = new User("João Silva");
+        user1.AssignLibrary(library1);
+        var user2 = new User("Maria Souza");
+        user2.AssignLibrary(library2);
 
         await context.Stores.AddAsync(store);
         await context.Users.AddRangeAsync(user1, user2);

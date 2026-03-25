@@ -4,13 +4,13 @@ namespace Grupo13Fiap.Domain.Entities;
 
 public class User : EntityBase
 {
-    private readonly List<UserRole> _roles = [];
+    private readonly List<UserRoleEnum> _roles = [];
 
-    public string Name { get; private set; }
+    public string Name { get; private set; } = string.Empty;
     public Guid? LibraryId { get; private set; }
     public Library? Library { get; private set; }
 
-    public IReadOnlyCollection<UserRole> Roles => _roles.AsReadOnly();
+    public IReadOnlyCollection<UserRoleEnum> Roles => _roles.AsReadOnly();
 
     public User(string name)
     {
@@ -25,7 +25,7 @@ public class User : EntityBase
         Name = name.Trim();
     }
 
-    public void AddRole(UserRole role)
+    public void AddRole(UserRoleEnum role)
     {
         if (_roles.Contains(role))
             throw new InvalidOperationException("O usuário já possui esse perfil.");
@@ -33,7 +33,7 @@ public class User : EntityBase
         _roles.Add(role);
     }
 
-    public void RemoveRole(UserRole role)
+    public void RemoveRole(UserRoleEnum role)
     {
         if (!_roles.Contains(role))
             throw new InvalidOperationException("O usuário não possui esse perfil.");
@@ -41,7 +41,7 @@ public class User : EntityBase
         _roles.Remove(role);
     }
 
-    public bool HasRole(UserRole role)
+    public bool HasRole(UserRoleEnum role)
     {
         return _roles.Contains(role);
     }
@@ -57,16 +57,16 @@ public class User : EntityBase
 
     public bool CanBuyGames()
     {
-        return HasRole(UserRole.Buyer);
+        return HasRole(UserRoleEnum.Buyer);
     }
 
     public bool CanApproveGames()
     {
-        return HasRole(UserRole.Admin);
+        return HasRole(UserRoleEnum.Admin);
     }
 
     public bool CanPublishGames()
     {
-        return HasRole(UserRole.Publisher);
+        return HasRole(UserRoleEnum.Publisher);
     }
 }

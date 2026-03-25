@@ -5,8 +5,8 @@ namespace Grupo13Fiap.Domain.Entities;
 public class Game : EntityBase
 {
     public CategoryGameEnum Category { get; private set; }
-    public string Nome { get; private set; }
-    public string Description { get; private set; }
+    public string Nome { get; private set; } = string.Empty;
+    public string Description { get; private set; } = string.Empty;
     public decimal Price { get; private set; }
     public DateTime DisponibilizationDate { get; private set; }
 
