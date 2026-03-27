@@ -53,8 +53,8 @@ public class Game : EntityBase
 
     public void ScheduleDisponibilization(DateTime date)
     {
-        if (date < DateTime.UtcNow)
-            throw new ArgumentException("Data de disponibilização não pode estar no passado");
+        //if (date < DateTime.UtcNow)
+        //    throw new ArgumentException("Data de disponibilização não pode estar no passado");
 
         DisponibilizationDate = date;
     }
