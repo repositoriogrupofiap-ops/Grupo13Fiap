@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.OpenApi;
 
 namespace Grupo13Fiap.WebApi.Extensions;
@@ -13,48 +14,53 @@ public static class APIDocumentation
             {
                 document.Info = new()
                 {
-                    Title = ApiInfo.Title,
-                    Version = ApiInfo.Versions.V1,
+                    Title       = ApiInfo.Title,
+                    Version     = ApiInfo.Versions.V1,
                     Description = ApiInfo.Description,
                 };
                 document.Servers =
                 [
-                    new()
-                    {
-                        Url = ApiInfo.Server.Production,
-                        Description = "Servidor de Produção"
-                    },
-                    new()
-                    {
-                        Url = ApiInfo.Server.Local,
-                        Description = "Servidor Local"
-                    },
+                    new() { Url = ApiInfo.Server.Production, Description = "Servidor de Produção" },
+                    new() { Url = ApiInfo.Server.Local,       Description = "Servidor Local"       },
                 ];
                 document.ExternalDocs = new()
                 {
                     Description = ApiInfo.Suport.Name,
-                    Url = new Uri(ApiInfo.Suport.Url)
+                    Url         = new Uri(ApiInfo.Suport.Url)
                 };
 
                 document.Components ??= new OpenApiComponents();
                 document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
-                document.Components.SecuritySchemes.Add("Bearer", new OpenApiSecurityScheme
+                document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
                 {
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer",
+                    Name         = "Authorization",
+                    Type         = SecuritySchemeType.Http,
+                    Scheme       = "Bearer",
                     BearerFormat = "JWT",
-                    Description = "Insira o token JWT obtido no endpoint de login."
-                });
+                    In           = ParameterLocation.Header,
+                    Description  = "Enter your JWT token"
+                };
+
                 return Task.CompletedTask;
             });
 
             o.AddOperationTransformer((operation, context, cancellationToken) =>
             {
-                var hasAuthorize = context.Description.ActionDescriptor.EndpointMetadata
-                    .OfType<IAuthorizeData>()
-                    .Any();
+                var actionDescriptor = context.Description.ActionDescriptor as ControllerActionDescriptor;
+                if (actionDescriptor is null)
+                    return Task.CompletedTask;
 
-                if (hasAuthorize)
+                var isAnonymous =
+                    actionDescriptor.ControllerTypeInfo.GetCustomAttributes(inherit: true).OfType<AllowAnonymousAttribute>().Any()
+                    || actionDescriptor.MethodInfo.GetCustomAttributes(inherit: true).OfType<AllowAnonymousAttribute>().Any();
+
+                var requiresAuth =
+                    !isAnonymous && (
+                        actionDescriptor.ControllerTypeInfo.GetCustomAttributes(inherit: true).OfType<AuthorizeAttribute>().Any()
+                        || actionDescriptor.MethodInfo.GetCustomAttributes(inherit: true).OfType<AuthorizeAttribute>().Any()
+                    );
+
+                if (requiresAuth)
                 {
                     operation.Security =
                     [

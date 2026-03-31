@@ -1,4 +1,4 @@
-namespace Grupo13Fiap.Identity
+namespace Grupo13Fiap.Identity.Constants
 {
     public class ClaimTypes
     {

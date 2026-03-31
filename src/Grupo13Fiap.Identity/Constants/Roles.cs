@@ -1,4 +1,4 @@
-namespace Way2Commerce.Identity
+namespace Grupo13Fiap.Identity.Constants
 {
     public class Roles
     {

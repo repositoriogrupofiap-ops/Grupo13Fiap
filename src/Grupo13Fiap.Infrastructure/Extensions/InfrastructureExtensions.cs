@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Scalar.AspNetCore;
 
 namespace Grupo13Fiap.Infrastructure.Extensions;
 
@@ -38,6 +39,10 @@ public static class InfrastructureExtensions
 
         var identityDb = scope.ServiceProvider.GetRequiredService<IdentityDataContext>();
         await identityDb.Database.MigrateAsync();
+
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+        await IdentityDataSeeder.SeedAsync(roleManager, userManager);
     }
 
     public static async Task SeedDatabaseAsync(this IServiceProvider provider)
@@ -56,12 +61,6 @@ public static class InfrastructureExtensions
             return services;
         }
 
-        //coloquei em memoria pra não termos problemas com a conn de inicio, qualquer coisa só descomentar o codigo a baixo e comentar este.
-        //é preciso ajustar o metodo a cima InitializeDatabaseAsync para usar migrate ao invés de ensurecreated
-        //services.AddDbContext<DBContextGrupo13Fiap>(options =>
-        //    options.UseInMemoryDatabase("Grupo13FiapDb"));
-
-
         services.AddDbContext<DBContextGrupo13Fiap>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
@@ -73,7 +72,6 @@ public static class InfrastructureExtensions
 
     private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-
         services.AddDefaultIdentity<IdentityUser>()
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<IdentityDataContext>()
@@ -125,6 +123,8 @@ public static class InfrastructureExtensions
             RequireExpirationTime = true,
             ValidateLifetime = true,
 
+            RoleClaimType = "role",
+
             ClockSkew = TimeSpan.Zero
         };
 
@@ -134,6 +134,7 @@ public static class InfrastructureExtensions
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         }).AddJwtBearer(options =>
         {
+            options.MapInboundClaims = false;
             options.TokenValidationParameters = tokenValidationParameters;
         });
     }

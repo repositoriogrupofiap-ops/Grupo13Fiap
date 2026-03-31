@@ -6,6 +6,7 @@ using Grupo13Fiap.Application.DTOs.Request;
 using Grupo13Fiap.Application.DTOs.Response;
 using Grupo13Fiap.Application.Interfaces.Services;
 using Grupo13Fiap.Identity.Configurations;
+using Grupo13Fiap.Identity.Constants;
 
 namespace Grupo13Fiap.Identity.Services
 {
@@ -35,7 +36,10 @@ namespace Grupo13Fiap.Identity.Services
 
             var result = await _userManager.CreateAsync(identityUser, userRegistration.Password);
             if (result.Succeeded)
+            {
                 await _userManager.SetLockoutEnabledAsync(identityUser, false);
+                await _userManager.AddToRoleAsync(identityUser, Roles.User);
+            }
 
             var userRegistrationResponse = new UserRegistrationResponse(result.Succeeded);
             if (!result.Succeeded && result.Errors.Count() > 0)
@@ -70,12 +74,12 @@ namespace Grupo13Fiap.Identity.Services
         {
             var userLoginResponse = new UserLoginResponse();
             var user = await _userManager.FindByIdAsync(usuarioId);
-            
+
             if (await _userManager.IsLockedOutAsync(user))
                 userLoginResponse.AddError("Essa conta está bloqueada");
             else if (!await _userManager.IsEmailConfirmedAsync(user))
                 userLoginResponse.AddError("Essa conta precisa confirmar seu e-mail antes de realizar o login");
-            
+
             if (userLoginResponse.Success)
                 return await GenerateCredentials(user.Email);
 
@@ -121,8 +125,7 @@ namespace Grupo13Fiap.Identity.Services
             claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.Id));
             claims.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email));
             claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
-            claims.Add(new Claim(JwtRegisteredClaimNames.Nbf, DateTime.Now.ToString()));
-            claims.Add(new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.Now.ToUnixTimeSeconds().ToString()));
+            claims.Add(new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()));
 
             if (addClaimsUser)
             {

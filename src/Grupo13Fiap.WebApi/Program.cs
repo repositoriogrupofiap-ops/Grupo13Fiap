@@ -1,9 +1,9 @@
 using Grupo13Fiap.Api.Extensions;
 using Grupo13Fiap.Infrastructure.Extensions;
 using Grupo13Fiap.WebApi.Extensions;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 builder.Services.AddCors();
 builder.Services.AddApiProblemDetails();
@@ -19,18 +19,24 @@ await app.Services.InitializeDatabaseAsync();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.UseSwaggerUI(o=>     {
+
+    
+    app.MapScalarApiReference(o => o.Title = "Grupo13Fiap API");
+
+    
+    app.UseSwaggerUI(o =>
+    {
         o.SwaggerEndpoint("/openapi/v1.json", "Grupo13Fiap API");
     });
+
     await app.Services.SeedDatabaseAsync();
 }
 
-app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors(builder => builder
-    .SetIsOriginAllowed(orign => true)
+    .SetIsOriginAllowed(origin => true)
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowCredentials());
