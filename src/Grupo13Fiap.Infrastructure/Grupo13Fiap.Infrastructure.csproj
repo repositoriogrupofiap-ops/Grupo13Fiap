@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Grupo13Fiap.Domain\Grupo13Fiap.Domain.csproj" />
+    <ProjectReference Include="..\Grupo13Fiap.Identity\Grupo13Fiap.Identity.csproj" />
     <ProjectReference Include="..\Grupo13Fiap.Utils\Grupo13Fiap.Utils.csproj" />
   </ItemGroup>
 
@@ -13,6 +14,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.13.18" />
   </ItemGroup>
 
   <PropertyGroup>
