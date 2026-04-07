@@ -15,6 +15,9 @@ internal static class TestSeeder
     internal const int    TotalStores = 1;
     internal const int    StoreGames  = 4;
 
+    private static readonly string User1IdentityId = Guid.NewGuid().ToString();
+    private static readonly string User2IdentityId = Guid.NewGuid().ToString();
+
     internal static async Task SeedAsync(DBContextGrupo13Fiap context)
     {
         var rpg1    = new Game(CategoryGameEnum.RPG,    "RPG Game One",    "Desc 1", 100m);
@@ -41,10 +44,10 @@ internal static class TestSeeder
         library2.AddGame(action1);
         library2.AddGame(action2);
 
-        var user1 = new User(User1Name);
+        var user1 = new User(User1Name, User1IdentityId);
         user1.AssignLibrary(library1);
 
-        var user2 = new User(User2Name);
+        var user2 = new User(User2Name, User2IdentityId);
         user2.AssignLibrary(library2);
 
         await context.Stores.AddAsync(store);

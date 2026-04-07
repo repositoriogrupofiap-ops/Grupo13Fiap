@@ -1,3 +1,4 @@
+using Grupo13Fiap.Domain.Enum;
 using Grupo13Fiap.Identity.Constants;
 using Microsoft.AspNetCore.Identity;
 
@@ -5,18 +6,20 @@ namespace Grupo13Fiap.Identity.Data
 {
     public static class IdentityDataSeeder
     {
+        // Todas as roles derivadas diretamente do enum de domínio
+        private static readonly string[] AllRoles =
+            Enum.GetNames<UserRoleEnum>();
+
         public static async Task SeedAsync(
             RoleManager<IdentityRole> roleManager,
             UserManager<IdentityUser> userManager)
         {
-            // Seed roles
-            foreach (var role in new[] { Roles.Admin, Roles.User })
+            foreach (var role in AllRoles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
                     await roleManager.CreateAsync(new IdentityRole(role));
             }
 
-            // Seed admin user
             const string adminEmail    = "admin@grupo13.com";
             const string adminPassword = "Admin@123!";
 
@@ -33,11 +36,9 @@ namespace Grupo13Fiap.Identity.Data
                 };
 
                 var result = await userManager.CreateAsync(adminUser, adminPassword);
-                if (!result.Succeeded)
-                    return;
+                if (!result.Succeeded) return;
             }
 
-            // Garante a role Admin mesmo se o usuário já existia
             if (!await userManager.IsInRoleAsync(adminUser, Roles.Admin))
                 await userManager.AddToRoleAsync(adminUser, Roles.Admin);
         }

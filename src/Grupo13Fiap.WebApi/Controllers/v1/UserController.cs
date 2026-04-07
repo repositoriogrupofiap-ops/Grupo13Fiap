@@ -2,21 +2,24 @@ using System.Net;
 using System.Security.Claims;
 using Grupo13Fiap.Application.DTOs.Response;
 using Grupo13Fiap.Application.Interfaces.Services;
+using Grupo13Fiap.Domain.Interfaces;
+using Grupo13Fiap.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Grupo13Fiap.WebApi.Controllers.Shared;
 using Grupo13Fiap.Application.DTOs.Request;
-
-
 namespace Grupo13Fiap.WebApi.Controllers.v1;
-
 
 public class UserController : ApiControllerBase
 {
-    private IIdentityService _identityService;
+    private readonly IIdentityService  _identityService;
+    private readonly IUsersRepository  _usersRepository;
 
-    public UserController(IIdentityService identityService) =>
+    public UserController(IIdentityService identityService, IUsersRepository usersRepository)
+    {
         _identityService = identityService;
+        _usersRepository = usersRepository;
+    }
 
     /// <summary>
     /// Cadastro de usuário.
@@ -38,15 +41,19 @@ public class UserController : ApiControllerBase
             return BadRequest();
 
         var result = await _identityService.RegisterUser(userRegister);
-        if (result.Success)
-            return Ok(result);
-        else if (result.Erros.Count > 0)
+
+        if (!result.Success)
         {
-            var problemDetails = new CustomProblemDetails(HttpStatusCode.BadRequest, Request, errors: result.Erros);
-            return BadRequest(problemDetails);
+            if (result.Erros.Count > 0)
+                return BadRequest(new CustomProblemDetails(HttpStatusCode.BadRequest, Request, errors: result.Erros));
+
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
-        
-        return StatusCode(StatusCodes.Status500InternalServerError);
+
+        var domainUser = new User(userRegister.Name, result.IdentityUserId!);
+        await _usersRepository.AddAsync(domainUser);
+
+        return Ok(result);
     }
 
     /// <summary>
@@ -95,7 +102,7 @@ public class UserController : ApiControllerBase
     [HttpPost("user/refresh-login")]
     public async Task<ActionResult<UserLoginResponse>> RefreshLogin()
     {
-        var identity = HttpContext.User.Identity as ClaimsIdentity;
+        var identity  = HttpContext.User.Identity as ClaimsIdentity;
         var usuarioId = identity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (usuarioId == null)
             return BadRequest();
@@ -103,7 +110,7 @@ public class UserController : ApiControllerBase
         var resultado = await _identityService.LoginWithoutPassword(usuarioId);
         if (resultado.Success)
             return Ok(resultado);
-        
+
         return Unauthorized();
     }
 }

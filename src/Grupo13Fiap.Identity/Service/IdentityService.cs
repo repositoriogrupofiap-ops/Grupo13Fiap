@@ -7,6 +7,7 @@ using Grupo13Fiap.Application.DTOs.Response;
 using Grupo13Fiap.Application.Interfaces.Services;
 using Grupo13Fiap.Identity.Configurations;
 using Grupo13Fiap.Identity.Constants;
+using Grupo13Fiap.Domain.Enum;
 
 namespace Grupo13Fiap.Identity.Services
 {
@@ -39,13 +40,13 @@ namespace Grupo13Fiap.Identity.Services
             {
                 await _userManager.SetLockoutEnabledAsync(identityUser, false);
                 await _userManager.AddToRoleAsync(identityUser, Roles.User);
+
+                return new UserRegistrationResponse(success: true, identityUserId: identityUser.Id);
             }
 
-            var userRegistrationResponse = new UserRegistrationResponse(result.Succeeded);
-            if (!result.Succeeded && result.Errors.Count() > 0)
-                userRegistrationResponse.AddErrors(result.Errors.Select(r => r.Description));
-
-            return userRegistrationResponse;
+            var response = new UserRegistrationResponse(success: false);
+            response.AddErrors(result.Errors.Select(e => e.Description));
+            return response;
         }
 
         public async Task<UserLoginResponse> Login(UserLoginRequest userLogin)
@@ -139,6 +140,26 @@ namespace Grupo13Fiap.Identity.Services
             }
 
             return claims;
+        }
+
+        public async Task AssignRoleAsync(string identityUserId, UserRoleEnum role)
+        {
+            var user         = await _userManager.FindByIdAsync(identityUserId)
+                               ?? throw new InvalidOperationException("Usuário não encontrado.");
+            var identityRole = role.ToIdentityRole();  // só .ToString()
+
+            if (!await _userManager.IsInRoleAsync(user, identityRole))
+                await _userManager.AddToRoleAsync(user, identityRole);
+        }
+
+        public async Task RemoveRoleAsync(string identityUserId, UserRoleEnum role)
+        {
+            var user         = await _userManager.FindByIdAsync(identityUserId)
+                               ?? throw new InvalidOperationException("Usuário não encontrado.");
+            var identityRole = role.ToIdentityRole();
+
+            if (await _userManager.IsInRoleAsync(user, identityRole))
+                await _userManager.RemoveFromRoleAsync(user, identityRole);
         }
     }
 }
