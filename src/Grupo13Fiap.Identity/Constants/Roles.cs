@@ -1,8 +1,9 @@
-namespace Grupo13Fiap.Identity.Constants
+namespace Grupo13Fiap.Identity.Constants;
+
+public static class Roles
 {
-    public class Roles
-    {
-        public const string Admin = nameof(Admin);
-        public const string User = nameof(User);
-    }
+    public const string Admin     = "Admin";
+    public const string User      = "User";
+    public const string Publisher = "Publisher";
+    public const string Buyer     = "Buyer";
 }
