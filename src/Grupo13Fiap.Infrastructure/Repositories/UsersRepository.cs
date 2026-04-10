@@ -19,4 +19,10 @@ public class UsersRepository(DBContextGrupo13Fiap context) : GenericRepository<U
             .Include(u => u.Library)
                 .ThenInclude(l => l.Games)
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+
+    public async Task<User?> GetWithLibraryByIdentityUserIdAsync(string identityUserId, CancellationToken cancellationToken = default)
+        => await Query()
+            .Include(u => u.Library)
+                .ThenInclude(l => l.Games)
+            .FirstOrDefaultAsync(u => u.IdentityUserId == identityUserId, cancellationToken);
 }

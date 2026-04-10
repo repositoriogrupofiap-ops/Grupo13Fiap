@@ -1,33 +1,36 @@
 using System.Net;
 using System.Security.Claims;
+using Grupo13Fiap.Application.DTOs.Request;
 using Grupo13Fiap.Application.DTOs.Response;
 using Grupo13Fiap.Application.Interfaces.Services;
-using Grupo13Fiap.Domain.Interfaces;
 using Grupo13Fiap.Domain.Entities;
+using Grupo13Fiap.Domain.Interfaces;
+using Grupo13Fiap.WebApi.Controllers.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Grupo13Fiap.WebApi.Controllers.Shared;
-using Grupo13Fiap.Application.DTOs.Request;
+
 namespace Grupo13Fiap.WebApi.Controllers.v1;
 
 public class UserController : ApiControllerBase
 {
     private readonly IIdentityService  _identityService;
     private readonly IUsersRepository  _usersRepository;
+    private readonly ILibraryRepository _libraryRepository;
 
-    public UserController(IIdentityService identityService, IUsersRepository usersRepository)
+    public UserController(
+        IIdentityService    identityService,
+        IUsersRepository    usersRepository,
+        ILibraryRepository  libraryRepository)
     {
-        _identityService = identityService;
-        _usersRepository = usersRepository;
+        _identityService    = identityService;
+        _usersRepository    = usersRepository;
+        _libraryRepository  = libraryRepository;
     }
 
     /// <summary>
     /// Cadastro de usuário.
     /// </summary>
-    /// <remarks>
-    /// </remarks>
     /// <param name="userRegistration">Dados de cadastro do usuário</param>
-    /// <returns></returns>
     /// <response code="200">Usuário criado com sucesso</response>
     /// <response code="400">Retorna erros de validação</response>
     /// <response code="500">Retorna erros caso ocorram</response>
@@ -50,7 +53,11 @@ public class UserController : ApiControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
+        var library    = new Library();
         var domainUser = new User(userRegister.Name, result.IdentityUserId!);
+        domainUser.AssignLibrary(library);
+
+        await _libraryRepository.AddAsync(library);
         await _usersRepository.AddAsync(domainUser);
 
         return Ok(result);
@@ -59,10 +66,7 @@ public class UserController : ApiControllerBase
     /// <summary>
     /// Login do usuário via usuário/senha.
     /// </summary>
-    /// <remarks>
-    /// </remarks>
     /// <param name="userLogin">Dados de login do usuário</param>
-    /// <returns></returns>
     /// <response code="200">Login realizado com sucesso</response>
     /// <response code="400">Retorna erros de validação</response>
     /// <response code="401">Erro caso usuário não esteja autorizado</response>
@@ -87,9 +91,6 @@ public class UserController : ApiControllerBase
     /// <summary>
     /// Login do usuário via refresh token.
     /// </summary>
-    /// <remarks>
-    /// </remarks>
-    /// <returns></returns>
     /// <response code="200">Login realizado com sucesso</response>
     /// <response code="400">Retorna erros de validação</response>
     /// <response code="401">Erro caso usuário não esteja autorizado</response>
@@ -104,7 +105,7 @@ public class UserController : ApiControllerBase
     {
         var identity  = HttpContext.User.Identity as ClaimsIdentity;
         var usuarioId = identity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (usuarioId == null)
+        if (usuarioId is null)
             return BadRequest();
 
         var resultado = await _identityService.LoginWithoutPassword(usuarioId);
