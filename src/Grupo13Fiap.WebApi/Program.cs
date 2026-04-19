@@ -1,4 +1,3 @@
-using Grupo13Fiap.Api.Extensions;
 using Grupo13Fiap.Infrastructure.Extensions;
 using Grupo13Fiap.WebApi.Extensions;
 using Scalar.AspNetCore;
@@ -6,7 +5,6 @@ using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors();
-builder.Services.AddApiProblemDetails();
 builder.Services.AddControllers();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddAPIDocumentation();
@@ -32,6 +30,7 @@ if (app.Environment.IsDevelopment())
     await app.Services.SeedDatabaseAsync();
 }
 
+app.UseExceptionMiddleware();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

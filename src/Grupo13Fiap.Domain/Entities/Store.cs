@@ -1,4 +1,6 @@
-﻿namespace Grupo13Fiap.Domain.Entities;
+﻿using Grupo13Fiap.Domain.Exceptions;
+
+namespace Grupo13Fiap.Domain.Entities;
 
 public class Store : EntityBase
 {
@@ -12,17 +14,15 @@ public class Store : EntityBase
             throw new ArgumentNullException(nameof(game), "O jogo não pode ser nulo.");
 
         if (_games.Any(g => g.Id == game.Id))
-            throw new InvalidOperationException("O jogo já está cadastrado na loja.");
+            throw new ConflictException("O jogo já está cadastrado na loja.");
 
         _games.Add(game);
     }
 
     public void RemoveGame(Guid gameId)
     {
-        var game = _games.FirstOrDefault(g => g.Id == gameId);
-
-        if (game is null)
-            throw new InvalidOperationException("Jogo não encontrado na loja.");
+        var game = _games.FirstOrDefault(g => g.Id == gameId) ??
+            throw new NotFoundException("Jogo não encontrado na loja.");
 
         _games.Remove(game);
     }

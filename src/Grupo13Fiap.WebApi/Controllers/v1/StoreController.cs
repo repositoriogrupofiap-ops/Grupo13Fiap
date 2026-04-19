@@ -2,23 +2,17 @@ using Grupo13Fiap.Application.DTOs.Response;
 using Grupo13Fiap.Domain.Entities;
 using Grupo13Fiap.Domain.Interfaces;
 using Grupo13Fiap.Identity.Constants;
-using Grupo13Fiap.WebApi.Controllers.Shared;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grupo13Fiap.WebApi.Controllers.v1;
 
 [Authorize]
-public class StoreController : ApiControllerBase
+public class StoreController(IStoreRepository storeRepository, IGameRepository gameRepository) : ApiControllerBase
 {
-    private readonly IStoreRepository _storeRepository;
-    private readonly IGameRepository  _gameRepository;
-
-    public StoreController(IStoreRepository storeRepository, IGameRepository gameRepository)
-    {
-        _storeRepository = storeRepository;
-        _gameRepository  = gameRepository;
-    }
+    private readonly IStoreRepository _storeRepository = storeRepository;
+    private readonly IGameRepository _gameRepository = gameRepository;
 
     /// <summary>
     /// Lista todas as lojas.
@@ -43,7 +37,7 @@ public class StoreController : ApiControllerBase
     public async Task<IActionResult> GetById(Guid storeId, CancellationToken cancellationToken)
     {
         var store = await _storeRepository.GetWithGamesAsync(storeId, cancellationToken);
-        if (store is null)
+        if(store is null)
             return NotFound();
 
         return Ok(ToResponse(store));
@@ -65,21 +59,14 @@ public class StoreController : ApiControllerBase
     public async Task<IActionResult> AddGame(Guid storeId, Guid gameId, CancellationToken cancellationToken)
     {
         var store = await _storeRepository.GetWithGamesAsync(storeId, cancellationToken);
-        if (store is null)
+        if(store is null)
             return NotFound("Loja não encontrada.");
 
         var game = await _gameRepository.GetByIdAsync(gameId, cancellationToken);
-        if (game is null)
+        if(game is null)
             return NotFound("Jogo não encontrado.");
 
-        try
-        {
-            store.AddGame(game);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(ex.Message);
-        }
+        store.AddGame(game);
 
         await _storeRepository.UpdateAsync(store, cancellationToken);
 
@@ -100,17 +87,10 @@ public class StoreController : ApiControllerBase
     public async Task<IActionResult> RemoveGame(Guid storeId, Guid gameId, CancellationToken cancellationToken)
     {
         var store = await _storeRepository.GetWithGamesAsync(storeId, cancellationToken);
-        if (store is null)
+        if(store is null)
             return NotFound("Loja não encontrada.");
 
-        try
-        {
-            store.RemoveGame(gameId);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return NotFound(ex.Message);
-        }
+        store.RemoveGame(gameId);
 
         await _storeRepository.UpdateAsync(store, cancellationToken);
 
@@ -119,18 +99,18 @@ public class StoreController : ApiControllerBase
 
     private static StoreResponse ToResponse(Store store) => new()
     {
-        Id         = store.Id,
+        Id = store.Id,
         CreateDate = store.CreateDate,
-        Games      = store.Games.Select(g => new GameResponse
+        Games = store.Games.Select(g => new GameResponse
         {
-            Id                    = g.Id,
-            Nome                  = g.Nome,
-            Description           = g.Description,
-            Price                 = g.Price,
-            Category              = g.Category,
+            Id = g.Id,
+            Nome = g.Nome,
+            Description = g.Description,
+            Price = g.Price,
+            Category = g.Category,
             DisponibilizationDate = g.DisponibilizationDate,
-            IsAvailable           = g.IsAvailable(),
-            CreateDate            = g.CreateDate
+            IsAvailable = g.IsAvailable(),
+            CreateDate = g.CreateDate
         })
     };
 }
