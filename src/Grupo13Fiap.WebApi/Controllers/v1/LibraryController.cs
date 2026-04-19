@@ -1,30 +1,24 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Grupo13Fiap.Application.DTOs.Response;
 using Grupo13Fiap.Domain.Entities;
 using Grupo13Fiap.Domain.Interfaces;
-using Grupo13Fiap.WebApi.Controllers.Shared;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Grupo13Fiap.WebApi.Controllers.v1;
 
 [Authorize]
-public class LibraryController : ApiControllerBase
+public class LibraryController(
+    IUsersRepository usersRepository,
+    ILibraryRepository libraryRepository,
+    IStoreRepository storeRepository) : ApiControllerBase
 {
-    private readonly IUsersRepository   _usersRepository;
-    private readonly ILibraryRepository _libraryRepository;
-    private readonly IStoreRepository   _storeRepository;
-
-    public LibraryController(
-        IUsersRepository   usersRepository,
-        ILibraryRepository libraryRepository,
-        IStoreRepository   storeRepository)
-    {
-        _usersRepository   = usersRepository;
-        _libraryRepository = libraryRepository;
-        _storeRepository   = storeRepository;
-    }
+    private readonly IUsersRepository _usersRepository = usersRepository;
+    private readonly ILibraryRepository _libraryRepository = libraryRepository;
+    private readonly IStoreRepository _storeRepository = storeRepository;
 
     /// <summary>
     /// Retorna a biblioteca de jogos do usuário autenticado.
@@ -37,17 +31,17 @@ public class LibraryController : ApiControllerBase
     public async Task<IActionResult> GetMyLibrary(CancellationToken cancellationToken)
     {
         var identityUserId = GetIdentityUserId();
-        if (identityUserId is null)
+        if(identityUserId is null)
             return Unauthorized();
 
         var user = await _usersRepository.GetWithLibraryByIdentityUserIdAsync(identityUserId, cancellationToken);
-        if (user is null)
+        if(user is null)
             return NotFound("Usuário não encontrado.");
 
-        if (user.Library is null)
+        if(user.Library is null)
             return Ok(new LibraryResponse());
 
-        return Ok(ToResponse(user.Library));    
+        return Ok(ToResponse(user.Library));
     }
 
     /// <summary>
@@ -67,28 +61,28 @@ public class LibraryController : ApiControllerBase
     public async Task<IActionResult> AddGame(Guid gameId, [FromQuery] Guid storeId, CancellationToken cancellationToken)
     {
         var identityUserId = GetIdentityUserId();
-        if (identityUserId is null)
+        if(identityUserId is null)
             return Unauthorized();
 
         var user = await _usersRepository.GetWithLibraryByIdentityUserIdAsync(identityUserId, cancellationToken);
-        if (user is null)
+        if(user is null)
             return NotFound("Usuário não encontrado.");
 
-        if (user.Library is null)
+        if(user.Library is null)
             return BadRequest("Usuário não possui uma biblioteca.");
 
         var store = await _storeRepository.GetWithGamesAsync(storeId, cancellationToken);
-        if (store is null)
+        if(store is null)
             return NotFound("Loja não encontrada.");
 
         var game = store.GetGameById(gameId);
-        if (game is null)
+        if(game is null)
             return NotFound("Jogo não encontrado na loja.");
 
-        if (!game.IsAvailable())
+        if(!game.IsAvailable())
             return BadRequest("O jogo ainda não está disponível.");
 
-        if (user.Library.HasGame(gameId))
+        if(user.Library.HasGame(gameId))
             return Conflict("O jogo já está na biblioteca.");
 
         user.Library.AddGame(game);
@@ -103,18 +97,18 @@ public class LibraryController : ApiControllerBase
 
     private static LibraryResponse ToResponse(Library library) => new()
     {
-        Id         = library.Id,
+        Id = library.Id,
         CreateDate = library.CreateDate,
-        Games      = library.Games.Select(g => new GameResponse
+        Games = library.Games.Select(g => new GameResponse
         {
-            Id                    = g.Id,
-            Nome                  = g.Nome,
-            Description           = g.Description,
-            Price                 = g.Price,
-            Category              = g.Category,
+            Id = g.Id,
+            Nome = g.Nome,
+            Description = g.Description,
+            Price = g.Price,
+            Category = g.Category,
             DisponibilizationDate = g.DisponibilizationDate,
-            IsAvailable           = g.IsAvailable(),
-            CreateDate            = g.CreateDate
+            IsAvailable = g.IsAvailable(),
+            CreateDate = g.CreateDate
         })
     };
 }

@@ -1,31 +1,26 @@
-using System.Net;
-using System.Security.Claims;
 using Grupo13Fiap.Application.DTOs.Request;
 using Grupo13Fiap.Application.DTOs.Response;
 using Grupo13Fiap.Application.Interfaces.Services;
 using Grupo13Fiap.Domain.Entities;
 using Grupo13Fiap.Domain.Interfaces;
 using Grupo13Fiap.WebApi.Controllers.Shared;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using System.Net;
+using System.Security.Claims;
+
 namespace Grupo13Fiap.WebApi.Controllers.v1;
 
-public class UserController : ApiControllerBase
+public class UserController(
+    IIdentityService identityService,
+    IUsersRepository usersRepository,
+    ILibraryRepository libraryRepository) : ApiControllerBase
 {
-    private readonly IIdentityService  _identityService;
-    private readonly IUsersRepository  _usersRepository;
-    private readonly ILibraryRepository _libraryRepository;
-
-    public UserController(
-        IIdentityService    identityService,
-        IUsersRepository    usersRepository,
-        ILibraryRepository  libraryRepository)
-    {
-        _identityService    = identityService;
-        _usersRepository    = usersRepository;
-        _libraryRepository  = libraryRepository;
-    }
+    private readonly IIdentityService _identityService = identityService;
+    private readonly IUsersRepository _usersRepository = usersRepository;
+    private readonly ILibraryRepository _libraryRepository = libraryRepository;
 
     /// <summary>
     /// Cadastro de usuário.
@@ -40,20 +35,20 @@ public class UserController : ApiControllerBase
     [HttpPost("user/register")]
     public async Task<IActionResult> Register(UserRegistrationRequest userRegister)
     {
-        if (!ModelState.IsValid)
+        if(!ModelState.IsValid)
             return BadRequest();
 
         var result = await _identityService.RegisterUser(userRegister);
 
-        if (!result.Success)
+        if(!result.Success)
         {
-            if (result.Erros.Count > 0)
+            if(result.Erros.Count > 0)
                 return BadRequest(new CustomProblemDetails(HttpStatusCode.BadRequest, Request, errors: result.Erros));
 
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        var library    = new Library();
+        var library = new Library();
         var domainUser = new User(userRegister.Name, result.IdentityUserId!);
         domainUser.AssignLibrary(library);
 
@@ -78,11 +73,11 @@ public class UserController : ApiControllerBase
     [HttpPost("user/login")]
     public async Task<ActionResult<UserLoginResponse>> Login(UserLoginRequest userLogin)
     {
-        if (!ModelState.IsValid)
+        if(!ModelState.IsValid)
             return BadRequest();
 
         var resultado = await _identityService.Login(userLogin);
-        if (resultado.Success)
+        if(resultado.Success)
             return Ok(resultado);
 
         return Unauthorized();
@@ -103,13 +98,13 @@ public class UserController : ApiControllerBase
     [HttpPost("user/refresh-login")]
     public async Task<ActionResult<UserLoginResponse>> RefreshLogin()
     {
-        var identity  = HttpContext.User.Identity as ClaimsIdentity;
+        var identity = HttpContext.User.Identity as ClaimsIdentity;
         var usuarioId = identity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (usuarioId is null)
+        if(usuarioId is null)
             return BadRequest();
 
         var resultado = await _identityService.LoginWithoutPassword(usuarioId);
-        if (resultado.Success)
+        if(resultado.Success)
             return Ok(resultado);
 
         return Unauthorized();

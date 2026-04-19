@@ -10,12 +10,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grupo13Fiap.WebApi.Controllers.v1;
 
 [Authorize(Roles = Roles.Admin)]
-public class GameController : ApiControllerBase
+public class GameController(IGameRepository gameRepository) : ApiControllerBase
 {
-    private readonly IGameRepository _gameRepository;
-
-    public GameController(IGameRepository gameRepository) =>
-        _gameRepository = gameRepository;
+    private readonly IGameRepository _gameRepository = gameRepository;
 
     /// <summary>
     /// Lista todos os jogos.

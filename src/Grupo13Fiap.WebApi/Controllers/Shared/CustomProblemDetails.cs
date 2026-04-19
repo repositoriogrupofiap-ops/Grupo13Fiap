@@ -1,5 +1,6 @@
-using System.Net;
 using Microsoft.AspNetCore.Mvc;
+
+using System.Net;
 
 namespace Grupo13Fiap.WebApi.Controllers.Shared
 {
@@ -12,21 +13,27 @@ namespace Grupo13Fiap.WebApi.Controllers.Shared
             Title = status switch
             {
                 HttpStatusCode.BadRequest => "One or more validation errors occurred.",
+                HttpStatusCode.Unauthorized => "Unauthorized.",
+                HttpStatusCode.Forbidden => "Access denied.",
+                HttpStatusCode.NotFound => "Resource not found.",
+                HttpStatusCode.Conflict => "Conflict.",
+                HttpStatusCode.NotImplemented => "Not implemented.",
                 HttpStatusCode.InternalServerError => "Internal server error.",
                 _ => "An error has occurred."
             };
-            
+
             Status = (int)status;
             Detail = detail;
 
-            if (errors is not null)
+            if(errors is not null)
             {
-                if (errors.Count() == 1)
-                    Detail = errors.First();
-                else if (errors.Count() > 1)
-                    Detail = "Multiple problems have occurred.";                
-
                 Errors.AddRange(errors);
+
+                Detail = Errors.Count == 1
+                    ? Errors[0]
+                    : Errors.Count > 1
+                        ? "Multiple problems have occurred."
+                        : detail;
             }
         }
 
@@ -34,6 +41,6 @@ namespace Grupo13Fiap.WebApi.Controllers.Shared
             Instance = request.Path;
 
         private CustomProblemDetails() =>
-            Errors = new List<string>();
+            Errors = [];
     }
 }
