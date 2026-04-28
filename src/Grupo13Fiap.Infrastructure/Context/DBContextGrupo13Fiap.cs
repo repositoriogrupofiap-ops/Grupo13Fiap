@@ -44,6 +44,8 @@ public class DBContextGrupo13Fiap(DbContextOptions<DBContextGrupo13Fiap> options
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.IdentityUserId).IsRequired().HasMaxLength(450);
+            entity.Ignore(e => e.Roles);
             entity.HasOne(e => e.Library)
                   .WithOne()
                   .HasForeignKey<User>(e => e.LibraryId);
