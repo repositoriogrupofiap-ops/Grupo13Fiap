@@ -62,11 +62,11 @@ CREATE DATABASE Grupo13FiapDb;
   
 # Autores
 
+- Alessandro dos Santos Santana – Discord: alee___ 
 -
--
--
--
--
+- Gutemberg Nascimento da Silva – Discord: gutemberg1328 
+- Guilherme Monteiro Massi – Discord: guimassi 
+- Kevin Castro de Oliveira – Discord: kevincastrodev 
 
 
 
