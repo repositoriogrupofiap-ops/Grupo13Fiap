@@ -54,16 +54,16 @@ CREATE DATABASE Grupo13FiapDb;
 
 # Pós execução
 
-- Abrir o localhost Swagger ou Scalar
-- Após isso é necessario se autenticar na URL (/api/v1/user/login)
+- Abrir o localhost Scalar (https://localhost:{PORTA}/scalar/#description/introduction)
+- Após isso é necessario se autenticar na URL (https://localhost:{PORTA}/scalar/#tag/user/POST/api/v1/user/login)
    pode se autenticar com o usuario ADMIN " Email: admin@grupo13.com / senha: Admin@123! "
-   ou pode criar um usuario na URL (/api/v1/user/register) e depois se autenticar na URL anterior
+   ou pode criar um usuario na URL (https://localhost:{PORTA}/scalar/#tag/user/POST/api/v1/user/register) e depois se autenticar na URL anterior
 - Após a autenticação vai ser gerado um token para que consiga acessar as outras URL's através do Authorize 
   
 # Autores
 
 - Alessandro dos Santos Santana – Discord: alee___ 
--
+- Giovana Souza Duarte – Discord: georgia9093 
 - Gutemberg Nascimento da Silva – Discord: gutemberg1328 
 - Guilherme Monteiro Massi – Discord: guimassi 
 - Kevin Castro de Oliveira – Discord: kevincastrodev 
