@@ -35,10 +35,24 @@ public static class InfrastructureExtensions
         using var scope = provider.CreateScope();
 
         var db = scope.ServiceProvider.GetRequiredService<DBContextGrupo13Fiap>();
-        await db.Database.MigrateAsync();
+        if (!db.Database.IsInMemory())
+        {
+            await db.Database.MigrateAsync();
+        }
+        else
+        {
+            await db.Database.EnsureCreatedAsync();
+        }
 
         var identityDb = scope.ServiceProvider.GetRequiredService<IdentityDataContext>();
-        await identityDb.Database.MigrateAsync();
+        if (!identityDb.Database.IsInMemory())
+        {
+            await identityDb.Database.MigrateAsync();
+        }
+        else
+        {
+            await identityDb.Database.EnsureCreatedAsync();
+        }
 
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
@@ -58,6 +72,7 @@ public static class InfrastructureExtensions
         if (configureDb is not null)
         {
             services.AddDbContext<DBContextGrupo13Fiap>(configureDb);
+            services.AddDbContext<IdentityDataContext>(configureDb);
             return services;
         }
 

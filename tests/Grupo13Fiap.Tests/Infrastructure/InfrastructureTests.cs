@@ -17,7 +17,17 @@ public class InfrastructureTests : IAsyncLifetime
     {
         var dbName        = $"TestDb_{Guid.NewGuid()}";
         var services      = new ServiceCollection();
-        var configuration = new ConfigurationBuilder().Build();
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["JwtOptions:SecurityKey"] = "ThisIsATestSecurityKeyForJwtTokenGenerationWithAtLeast32Characters",
+                ["JwtOptions:Issuer"] = "TestIssuer",
+                ["JwtOptions:Audience"] = "TestAudience",
+                ["JwtOptions:AccessTokenExpiration"] = "3600",
+                ["JwtOptions:RefreshTokenExpiration"] = "7200"
+            })
+            .Build();
 
         services.AddInfrastructure(configuration, options =>
             options.UseInMemoryDatabase(dbName));
